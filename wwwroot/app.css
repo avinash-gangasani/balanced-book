@@ -1,0 +1,390 @@
+/* =========================================
+   GLOBAL
+========================================= */
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #0b0f14;
+    overflow: hidden;
+    font-family: Inter, Segoe UI, sans-serif;
+}
+
+/* =========================================
+   EXCHANGE LAYOUT
+========================================= */
+
+.exchange {
+    height: 100vh;
+    background: #0b0f14;
+    color: #e5e7eb;
+    padding: 14px;
+    box-sizing: border-box;
+}
+
+.topbar {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #d1d5db;
+}
+
+/* =========================================
+   ORDER BOOK LAYOUT
+========================================= */
+
+.board {
+    display: flex;
+    gap: 12px;
+    height: calc(100vh - 90px);
+}
+
+.book {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+    height: 100%; /* IMPORTANT */
+    max-height: 100%; /* IMPORTANT */
+
+    overflow: hidden;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.book-header {
+    padding: 14px 16px;
+    background: linear-gradient( 180deg, #111827 0%, #0f172a 100% );
+    border-bottom: 1px solid #1f2937;
+}
+
+/* top area */
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ASK / BID */
+.header-main {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+/* SELL ORDERS / BUY ORDERS */
+.header-sub {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   COLUMN LAYOUT
+========================================= */
+
+.header-cols,
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+}
+
+/* =========================================
+   HEADER COLUMNS
+========================================= */
+
+.header-cols {
+    margin-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #9ca3af;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+    /* align headers */
+    .header-cols span:first-child {
+        text-align: left;
+    }
+
+    .header-cols span:last-child {
+        text-align: right;
+    }
+
+/* =========================================
+   ORDER ROWS
+========================================= */
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 8px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    min-height: 32px; /* IMPORTANT for consistent rows */
+
+    font-family: Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+    /* alternating depth feel */
+    .row:nth-child(even) {
+        background: rgba(255,255,255,0.015);
+    }
+
+    .row:last-child {
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .row:hover {
+        background: rgba(255,255,255,0.05);
+    }
+
+/* =========================================
+   COLUMN ALIGNMENT
+========================================= */
+
+/* PRICE column */
+.price {
+    text-align: left;
+}
+
+/* QTY column */
+.qty {
+    text-align: right;
+    color: #cbd5e1;
+}
+
+/* SELL accent */
+.sell-header .header-main {
+    color: #ef4444;
+}
+
+/* BUY accent */
+.buy-header .header-main {
+    color: #22c55e;
+}
+
+/* subtle terminal glow */
+.sell-book {
+    box-shadow: inset -1px 0 0 rgba(239,68,68,0.08), 0 10px 30px rgba(0,0,0,0.45);
+}
+
+.buy-book {
+    box-shadow: inset 1px 0 0 rgba(34,197,94,0.08), 0 10px 30px rgba(0,0,0,0.45);
+}
+
+/* =========================================
+   BOOK BODY
+========================================= */
+
+.book-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* THIS IS THE KEY FIX */
+    min-height: 0;
+    /* gives a visible “floor” so last border shows */
+    background: rgba(255,255,255,0.01);
+    /* creates separation from bottom edge */
+    padding-bottom: 2px;
+}
+
+/* =========================================
+   PRICE COLORS
+========================================= */
+
+.sell .price {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.buy .price {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+.qty {
+    color: #cbd5e1;
+}
+
+/* =========================================
+   FLASH EFFECTS
+========================================= */
+
+@keyframes flashGreen {
+    0% {
+        background-color: rgba(34,197,94,0.35);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+@keyframes flashRed {
+    0% {
+        background-color: rgba(239,68,68,0.35);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+.flash-buy {
+    animation: flashGreen 0.6s ease-out;
+}
+
+.flash-sell {
+    animation: flashRed 0.6s ease-out;
+}
+
+/* =========================================
+   MARKET SPREAD PANEL
+========================================= */
+
+.market-spread {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    background: linear-gradient( 180deg, #111827 0%, #0f172a 100% );
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.02), 0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* label */
+
+.spread-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #9ca3af;
+}
+
+/* value */
+
+.spread-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 22px;
+    font-weight: 800;
+    transition: all 0.2s ease;
+}
+
+    /* positive */
+
+    .spread-value.positive {
+        color: #22c55e;
+        text-shadow: 0 0 12px rgba(34,197,94,0.35);
+    }
+
+    /* negative */
+
+    .spread-value.negative {
+        color: #ef4444;
+        text-shadow: 0 0 12px rgba(239,68,68,0.35);
+    }
+
+/* arrow */
+
+.spread-arrow {
+    font-size: 18px;
+    position: relative;
+    top: -1px;
+}
+
+.live-feed {
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+    background: #0f172a;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.live-feed-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.live-feed-body {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden; /* 🚨 removes horizontal scroll */
+
+    gap: 8px;
+    padding: 10px 6px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.live-feed-item {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 12px;
+    /*border-radius: 10px;*/
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    transition: all 0.2s ease;
+}
+
+.lp {
+    color: #60a5fa;
+}
+
+.lq {
+    color: #cbd5e1;
+}
+.buy-item {
+    background: linear-gradient( 135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04) );
+    border-left: 3px solid #22c55e;
+}
+
+    .buy-item .lp {
+        color: #22c55e;
+        font-weight: 700;
+    }
+.sell-item {
+    background: linear-gradient( 135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04) );
+    border-left: 3px solid #ef4444;
+}
+
+    .sell-item .lp {
+        color: #ef4444;
+        font-weight: 700;
+    }

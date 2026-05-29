@@ -1,0 +1,197 @@
+﻿@page "/"
+@inject WorkerNotifierService Notifier
+@implements IDisposable
+@using BalancedBook.NET.Models
+
+<div class="exchange">
+
+    <div class="topbar">
+        <h3 class="title">📈 BalancedBook.NET</h3>
+    </div>
+    @if (buyOrders.Count > 0 && sellOrders.Count > 0)
+    {
+        var spread = Math.Round(buyOrders[0].Price - sellOrders[0].Price, 2);
+        var isPositive = spread >= 0;
+
+        <div class="market-spread">
+
+            <div class="spread-label">
+                MARKET SPREAD
+            </div>
+
+            <div class="spread-value @(isPositive ? "positive" : "negative")">
+
+                <span class="spread-arrow">
+                    @(isPositive ? "▲" : "▼")
+                </span>
+
+                <span>
+                    @spread
+                </span>
+
+            </div>
+
+        </div>
+    }
+
+    <div class="live-feed">
+        <div class="live-feed-title">LIVE FEED</div>
+
+        <div class="live-feed-body">
+            @foreach (var order in liveOrders)
+            {
+                <div class="live-feed-item @(order.Type == Enums.OrderType.Buy ? "buy-item" : "sell-item")">
+                    <span class="lp">P: @order.Price.ToString()</span>
+                    <span class="lq">Q: @order.Quantity</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="board">
+
+        <!-- SELL SIDE -->
+        <div class="book sell-book">
+
+            <div class="book-header sell-header">
+
+                <div class="header-top">
+                    <span class="header-main">ASK</span>
+                    <span class="header-sub">SELL ORDERS</span>
+                </div>
+
+                <div class="header-cols">
+                    <span>PRICE</span>
+                    <span>QTY</span>
+                </div>
+
+            </div>
+
+            <div class="book-body">
+
+                @foreach (var order in sellOrders)
+                {
+                    <div class="row sell">
+
+                        <span class="price">
+                            @order.Price
+                        </span>
+
+                        <span class="qty">
+                            @order.Quantity
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        <!-- BUY SIDE -->
+        <div class="book buy-book">
+
+            <div class="book-header buy-header">
+
+                <div class="header-top">
+                    <span class="header-main">BID</span>
+                    <span class="header-sub">BUY ORDERS</span>
+                </div>
+
+                <div class="header-cols">
+                    <span>PRICE</span>
+                    <span>QTY</span>
+                </div>
+
+            </div>
+
+            <div class="book-body">
+
+                @foreach (var order in buyOrders)
+                {
+                    <div class="row buy">
+
+                        <span class="price">
+                            @order.Price
+                        </span>
+
+                        <span class="qty">
+                            @order.Quantity
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    List<Order> sellOrders = new();
+    List<Order> buyOrders = new();
+    AVLTree sellTree = new();
+    AVLTree buyTree = new();
+    Queue<Order> liveOrders = new Queue<Order>();
+    int k = 10;
+
+    protected override void OnInitialized()
+    {
+        Notifier.OnJobExecuted += HandleJobExecuted;
+    }
+
+    private void HandleJobExecuted(Order order)
+    {
+        InvokeAsync(() =>
+        {
+            if (order.Type == Enums.OrderType.Sell)
+            {
+                sellOrders = sellTree.Insert(order, k);
+            }
+            else
+            {
+                buyOrders = buyTree.Insert(order, k);
+            }
+
+            LiveOrderStream(order);
+            Trade();
+
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        Notifier.OnJobExecuted -= HandleJobExecuted;
+    }
+
+    private void Trade()
+    {
+        if (buyOrders.Count <= 0 || sellOrders.Count <= 0) return;
+        if (buyOrders[0].Price >= sellOrders[0].Price)
+        {
+            if (buyOrders[0].Quantity > sellOrders[0].Quantity)
+            {
+                buyOrders[0].Quantity -= sellOrders[0].Quantity;
+            }
+            else if (sellOrders[0].Quantity > buyOrders[0].Quantity)
+            {
+                sellOrders[0].Quantity -= buyOrders[0].Quantity;
+            }
+            else
+            {
+                buyOrders.RemoveAt(0);
+                sellOrders.RemoveAt(0);
+            }
+        }
+    }
+
+    private void LiveOrderStream(Order order)
+    {
+        if (liveOrders.Count >= 10)
+        {
+            liveOrders.Dequeue();
+        }
+        liveOrders.Enqueue(order);
+    }
+}
